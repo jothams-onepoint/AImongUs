@@ -1,0 +1,31 @@
+module.exports = {
+  // client -> server
+  ROOM_CREATE: 'room:create',
+  ROOM_JOIN: 'room:join',
+  ROOM_REJOIN: 'room:rejoin',
+  PLAYER_LEAVE: 'player:leave',
+  HOST_UPDATE_SETTINGS: 'host:updateSettings',
+  HOST_ADD_QUESTION: 'host:addQuestion',
+  HOST_REMOVE_QUESTION: 'host:removeQuestion',
+  HOST_ASSIGN_AI: 'host:assignAI',
+  HOST_START_ROUND: 'host:startRound',
+  HOST_FORCE_ADVANCE_PHASE: 'host:forceAdvancePhase',
+  HOST_NEXT_ROUND: 'host:nextRound',
+  HOST_END_GAME: 'host:endGame',
+  ANSWER_SUBMIT: 'answer:submit',
+  CHAT_SEND_DISCUSSION_MESSAGE: 'chat:sendDiscussionMessage',
+  VOTE_CAST: 'vote:cast',
+
+  // server -> client
+  ROOM_STATE: 'room:state',
+  ROOM_PLAYER_JOINED: 'room:playerJoined',
+  ROOM_PLAYER_LEFT: 'room:playerLeft',
+  ROOM_PLAYER_CONNECTION_CHANGED: 'room:playerConnectionChanged',
+  ROUND_YOU_ARE_AI: 'round:youAreAI',
+  ROUND_STARTED: 'round:started',
+  ANSWER_NEW: 'answer:new',
+  PHASE_CHANGED: 'phase:changed',
+  CHAT_NEW_DISCUSSION_MESSAGE: 'chat:newDiscussionMessage',
+  VOTE_UPDATED: 'vote:updated',
+  ROUND_REVEAL: 'round:reveal',
+};
