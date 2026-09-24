@@ -70,6 +70,25 @@ function registerHostHandlers(io, socket) {
     if (cb) cb({ ok: true });
   });
 
+  socket.on(events.HOST_MOVE_QUESTION, ({ questionId, direction } = {}, cb) => {
+    const room = getRoomForHostAction(socket, cb);
+    if (!room) return;
+    const index = room.questionBank.findIndex((q) => q.id === questionId);
+    if (index === -1) {
+      if (cb) cb({ error: 'Question not found.' });
+      return;
+    }
+    const swapWith = direction === 'up' ? index - 1 : direction === 'down' ? index + 1 : null;
+    if (swapWith === null || swapWith < 0 || swapWith >= room.questionBank.length) {
+      if (cb) cb({ error: 'Cannot move that question further.' });
+      return;
+    }
+    const bank = room.questionBank;
+    [bank[index], bank[swapWith]] = [bank[swapWith], bank[index]];
+    broadcastRoomState(io, room);
+    if (cb) cb({ ok: true });
+  });
+
   socket.on(events.HOST_ASSIGN_AI, ({ playerId } = {}, cb) => {
     const room = getRoomForHostAction(socket, cb);
     if (!room) return;
@@ -83,7 +102,27 @@ function registerHostHandlers(io, socket) {
       return;
     }
     room.pendingAiPlayerId = playerId;
+    room.hideAiFromHost = false;
     broadcastRoomState(io, room);
+    if (cb) cb({ ok: true });
+  });
+
+  socket.on(events.HOST_RANDOMIZE_AI, (_payload, cb) => {
+    const room = getRoomForHostAction(socket, cb);
+    if (!room) return;
+    if (room.phase !== PHASES.LOBBY && room.phase !== PHASES.ROUND_SETUP) {
+      if (cb) cb({ error: 'Cannot assign the AI player right now.' });
+      return;
+    }
+    const candidates = phaseMachine.connectedPlayerIds(room);
+    if (candidates.length === 0) {
+      if (cb) cb({ error: 'No connected players to choose from.' });
+      return;
+    }
+    room.pendingAiPlayerId = candidates[Math.floor(Math.random() * candidates.length)];
+    room.hideAiFromHost = true;
+    broadcastRoomState(io, room);
+    // Deliberately not returning who was picked - the host isn't meant to know.
     if (cb) cb({ ok: true });
   });
 
@@ -96,6 +135,10 @@ function registerHostHandlers(io, socket) {
     }
     if (!room.pendingAiPlayerId) {
       if (cb) cb({ error: 'Assign a player as the AI first.' });
+      return;
+    }
+    if (room.questionBank.length === 0) {
+      if (cb) cb({ error: 'Add at least one question to the bank first.' });
       return;
     }
     const aiPlayer = room.players.get(room.pendingAiPlayerId);

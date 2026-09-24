@@ -1,9 +1,9 @@
 const { PHASES, createRound } = require('../rooms/roomFactory');
-const { pickRandomQuestion } = require('../questions/pickQuestion');
+const { pickNextQuestion } = require('../questions/pickQuestion');
 const { selectAnswerers } = require('./answererSelection');
 const { computeRoundScores } = require('./scoring');
 const events = require('../socket/events');
-const { broadcastRoomState, broadcastToRoom, sendToPlayer } = require('../socket/broadcast');
+const { broadcastRoomState, broadcastToRoom } = require('../socket/broadcast');
 
 function currentRound(room) {
   return room.rounds[room.rounds.length - 1] || null;
@@ -47,7 +47,7 @@ function enterPhase(io, room, phase, durationMs) {
 function startRound(io, room, { questionId } = {}) {
   const aiPlayerId = room.pendingAiPlayerId;
   const requested = questionId ? room.questionBank.find((q) => q.id === questionId) : null;
-  const question = requested || pickRandomQuestion(room.questionBank);
+  const question = requested || pickNextQuestion(room.questionBank);
   question.used = true;
 
   const answererIds = selectAnswerers({
@@ -63,11 +63,11 @@ function startRound(io, room, { questionId } = {}) {
     aiPlayerId,
     answererIds,
     eligibleVoterIds: connectedPlayerIds(room),
+    hideAiFromHost: room.hideAiFromHost,
   });
   room.rounds.push(round);
   room.pendingAiPlayerId = null;
 
-  sendToPlayer(io, room, aiPlayerId, events.ROUND_YOU_ARE_AI, { roundIndex: round.index });
   broadcastToRoom(io, room, events.ROUND_STARTED, {
     roundIndex: round.index,
     questionText: round.questionText,
@@ -114,6 +114,7 @@ function forceAdvancePhase(io, room) {
 
 function beginRoundSetup(io, room) {
   room.pendingAiPlayerId = null;
+  room.hideAiFromHost = false;
   enterPhase(io, room, PHASES.ROUND_SETUP, null);
 }
 

@@ -53,7 +53,6 @@ function reducer(state, action) {
 export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [connected, setConnected] = useState(socket.connected);
-  const [aiNotice, setAiNotice] = useState(null);
   const stateRef = useRef(state);
   stateRef.current = state;
 
@@ -75,20 +74,17 @@ export function GameProvider({ children }) {
     const onAnswerNew = (answer) => dispatch({ type: 'UPSERT_ANSWER', payload: answer });
     const onChatMessage = (message) => dispatch({ type: 'APPEND_CHAT', payload: message });
     const onVoteUpdated = (payload) => dispatch({ type: 'SET_VOTE_TALLY', payload });
-    const onYouAreAI = () => setAiNotice('You have been chosen as the AI this round!');
 
     socket.on('room:state', onRoomState);
     socket.on('answer:new', onAnswerNew);
     socket.on('chat:newDiscussionMessage', onChatMessage);
     socket.on('vote:updated', onVoteUpdated);
-    socket.on('round:youAreAI', onYouAreAI);
 
     return () => {
       socket.off('room:state', onRoomState);
       socket.off('answer:new', onAnswerNew);
       socket.off('chat:newDiscussionMessage', onChatMessage);
       socket.off('vote:updated', onVoteUpdated);
-      socket.off('round:youAreAI', onYouAreAI);
     };
   }, []);
 
@@ -155,7 +151,9 @@ export function GameProvider({ children }) {
     updateSettings: (settings) => emitAction('host:updateSettings', settings),
     addQuestion: (text) => emitAction('host:addQuestion', { text }),
     removeQuestion: (questionId) => emitAction('host:removeQuestion', { questionId }),
+    moveQuestion: (questionId, direction) => emitAction('host:moveQuestion', { questionId, direction }),
     assignAI: (playerId) => emitAction('host:assignAI', { playerId }),
+    randomizeAI: () => emitAction('host:randomizeAI', {}),
     startRound: (questionId) => emitAction('host:startRound', { questionId }),
     forceAdvancePhase: () => emitAction('host:forceAdvancePhase', {}),
     nextRound: () => emitAction('host:nextRound', {}),
@@ -163,7 +161,6 @@ export function GameProvider({ children }) {
     submitAnswer: (text) => emitAction('answer:submit', { text }),
     sendDiscussionMessage: (text) => emitAction('chat:sendDiscussionMessage', { text }),
     castVote: (targetPlayerId) => emitAction('vote:cast', { targetPlayerId }),
-    dismissAiNotice: () => setAiNotice(null),
   }), [createRoom, joinRoom, leaveRoom, emitAction]);
 
   const value = useMemo(() => ({
@@ -173,9 +170,8 @@ export function GameProvider({ children }) {
     joinError: state.joinError,
     rejoinAttempted: state.rejoinAttempted,
     connected,
-    aiNotice,
     ...actions,
-  }), [state, connected, aiNotice, actions]);
+  }), [state, connected, actions]);
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 }

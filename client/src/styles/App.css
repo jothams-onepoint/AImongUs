@@ -30,7 +30,9 @@ button {
 }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 button.secondary { background: var(--border); color: var(--text); }
-button.link { background: none; color: var(--danger); padding: 0; text-decoration: underline; font-size: 0.8rem; }
+button.link { background: none; color: var(--muted); padding: 0 0.2rem; font-size: 0.9rem; }
+button.link.danger { color: var(--danger); text-decoration: underline; font-size: 0.8rem; }
+button.link:disabled { opacity: 0.3; }
 
 input, textarea, select {
   padding: 0.55rem 0.7rem;
@@ -73,15 +75,19 @@ label {
 
 .app-shell { max-width: 1000px; margin: 0 auto; padding: 1rem; }
 
-.ai-notice {
+.ai-instructions {
   background: var(--accent-dark);
   color: white;
-  padding: 0.8rem 1rem;
+  padding: 0.9rem 1rem;
   border-radius: 10px;
-  margin-bottom: 1rem;
-  cursor: pointer;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: flex-start;
 }
-.ai-notice .dismiss { opacity: 0.7; font-size: 0.8rem; }
+.ai-instructions p { margin: 0; }
+.ai-instructions button { background: white; color: var(--accent-dark); }
 
 .lobby-screen { max-width: 640px; }
 .invite-link code { background: var(--border); padding: 0.2rem 0.4rem; border-radius: 6px; }
@@ -102,12 +108,19 @@ label {
 .scoreboard ol { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.3rem; }
 .scoreboard li { display: flex; justify-content: space-between; }
 
+.ai-picker { display: flex; gap: 0.5rem; }
+.ai-picker select { flex: 1; }
+.ai-picker button { flex-shrink: 0; }
+
 .host-control-panel, .question-bank-editor {
   background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-top: 1rem;
 }
 .question-bank-editor ul { list-style: none; padding: 0; }
-.question-bank-editor li { display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.3rem 0; font-size: 0.9rem; }
+.question-bank-editor li { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0; font-size: 0.9rem; border-bottom: 1px solid var(--border); }
 .question-bank-editor li.used { opacity: 0.5; }
+.question-bank-editor .order-index { color: var(--muted); font-size: 0.75rem; flex-shrink: 0; width: 1.2rem; }
+.question-bank-editor .question-text { flex: 1; }
+.question-bank-editor .question-actions { display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
 .question-bank-editor form { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
 
 .waiting { color: var(--muted); }

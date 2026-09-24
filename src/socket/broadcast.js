@@ -15,11 +15,4 @@ function broadcastToRoom(io, room, event, payload) {
   io.to(room.code).emit(event, payload);
 }
 
-function sendToPlayer(io, room, playerId, event, payload) {
-  const player = room.players.get(playerId);
-  if (player && player.socketId) {
-    io.to(player.socketId).emit(event, payload);
-  }
-}
-
-module.exports = { broadcastRoomState, broadcastToRoom, sendToPlayer };
+module.exports = { broadcastRoomState, broadcastToRoom };

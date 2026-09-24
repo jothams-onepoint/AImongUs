@@ -1,14 +1,15 @@
-// Picks a random unused question from the bank. If every question has been
-// used this session, resets the used flags and cycles back through them.
-function pickRandomQuestion(questionBank) {
-  let unused = questionBank.filter((q) => !q.used);
-  if (unused.length === 0) {
+// Picks the next unused question in the bank's display order. Once every
+// question has been used this session, resets the used flags and starts
+// back at the top of the list.
+function pickNextQuestion(questionBank) {
+  if (questionBank.length === 0) return null;
+  let next = questionBank.find((q) => !q.used);
+  if (!next) {
     questionBank.forEach((q) => { q.used = false; });
-    unused = questionBank;
+    next = questionBank[0];
   }
-  const question = unused[Math.floor(Math.random() * unused.length)];
-  question.used = true;
-  return question;
+  next.used = true;
+  return next;
 }
 
-module.exports = { pickRandomQuestion };
+module.exports = { pickNextQuestion };

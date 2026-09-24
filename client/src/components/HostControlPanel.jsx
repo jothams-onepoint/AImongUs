@@ -5,10 +5,11 @@ import QuestionBankEditor from './QuestionBankEditor.jsx';
 const MIN_PLAYERS_TO_START = 3;
 
 export default function HostControlPanel() {
-  const { room, assignAI, startRound, updateSettings } = useGame();
+  const { room, assignAI, randomizeAI, startRound, updateSettings } = useGame();
 
   const connectedPlayers = room.players.filter((p) => p.connected);
-  const canStart = Boolean(room.pendingAiPlayerId) && connectedPlayers.length >= MIN_PLAYERS_TO_START;
+  const aiHiddenFromHost = room.pendingAiAssigned && !room.pendingAiPlayerId;
+  const canStart = room.pendingAiAssigned && connectedPlayers.length >= MIN_PLAYERS_TO_START;
 
   const handleAnswerersChange = (e) => {
     const value = e.target.value;
@@ -31,15 +32,29 @@ export default function HostControlPanel() {
 
       <label>
         Who's the AI this round?
-        <select
-          value={room.pendingAiPlayerId || ''}
-          onChange={(e) => assignAI(e.target.value)}
-        >
-          <option value="" disabled>Choose a player…</option>
-          {connectedPlayers.map((p) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
-          ))}
-        </select>
+        <div className="ai-picker">
+          <select
+            value={room.pendingAiPlayerId || ''}
+            onChange={(e) => assignAI(e.target.value)}
+            disabled={aiHiddenFromHost}
+          >
+            <option value="" disabled>
+              {aiHiddenFromHost ? 'Secretly assigned \u{1F3B2}' : 'Choose a player…'}
+            </option>
+            {connectedPlayers.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+          <button type="button" className="secondary" onClick={() => randomizeAI()}>
+            Random (hidden from you)
+          </button>
+        </div>
+        {aiHiddenFromHost && (
+          <p className="hint">
+            Someone's been randomly picked as the AI — it's a surprise to you too. Pick a name
+            above to override with a known choice, or randomize again.
+          </p>
+        )}
       </label>
 
       <button disabled={!canStart} onClick={() => startRound()}>

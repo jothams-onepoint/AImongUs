@@ -12,7 +12,7 @@ import RevealScreen from './components/RevealScreen.jsx';
 import PlayerList from './components/PlayerList.jsx';
 
 export default function App() {
-  const { room, rejoinAttempted, aiNotice, dismissAiNotice, isHost, forceAdvancePhase } = useGame();
+  const { room, rejoinAttempted, isHost, forceAdvancePhase } = useGame();
 
   if (!rejoinAttempted) {
     return <div className="screen"><p>Loading…</p></div>;
@@ -24,12 +24,6 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      {aiNotice && (
-        <div className="ai-notice" onClick={dismissAiNotice}>
-          {aiNotice} <span className="dismiss">(tap to dismiss)</span>
-        </div>
-      )}
-
       {(room.phase === 'lobby' || room.phase === 'round_setup') && <LobbyWaitingRoom />}
 
       {(room.phase === 'writing' || room.phase === 'discussion_voting') && (

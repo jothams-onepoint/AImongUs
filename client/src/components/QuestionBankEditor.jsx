@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useGame } from '../hooks/useCurrentPlayer.js';
 
 export default function QuestionBankEditor() {
-  const { room, addQuestion, removeQuestion } = useGame();
+  const { room, addQuestion, removeQuestion, moveQuestion } = useGame();
   const [draft, setDraft] = useState('');
 
   const handleAdd = async (e) => {
@@ -12,16 +12,38 @@ export default function QuestionBankEditor() {
     if (res.ok) setDraft('');
   };
 
+  const questions = room.questionBank;
+
   return (
     <div className="question-bank-editor">
       <h4>Question bank</h4>
+      <p className="hint">Questions are asked in this order. Only you can see this list.</p>
       <ul>
-        {room.questionBank.map((q) => (
+        {questions.map((q, i) => (
           <li key={q.id} className={q.used ? 'used' : ''}>
-            <span>{q.text}</span>
-            {q.isCustom && (
-              <button type="button" className="link" onClick={() => removeQuestion(q.id)}>remove</button>
-            )}
+            <span className="order-index">{i + 1}</span>
+            <span className="question-text">{q.text}</span>
+            <span className="question-actions">
+              <button
+                type="button"
+                className="link"
+                disabled={i === 0}
+                onClick={() => moveQuestion(q.id, 'up')}
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                className="link"
+                disabled={i === questions.length - 1}
+                onClick={() => moveQuestion(q.id, 'down')}
+              >
+                ↓
+              </button>
+              <button type="button" className="link danger" onClick={() => removeQuestion(q.id)}>
+                remove
+              </button>
+            </span>
           </li>
         ))}
       </ul>

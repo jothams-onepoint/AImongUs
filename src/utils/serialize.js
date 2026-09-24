@@ -16,7 +16,7 @@ function serializeRound(round, room, forPlayerId) {
   const isHost = forPlayerId === room.hostPlayerId;
   const isAiPlayer = forPlayerId === round.aiPlayerId;
   const revealed = room.phase === PHASES.REVEAL || room.phase === PHASES.ENDED;
-  const canSeeAiIdentity = isHost || isAiPlayer || revealed;
+  const canSeeAiIdentity = (isHost && !round.hideAiFromHost) || isAiPlayer || revealed;
 
   const voteTally = {};
   for (const [voterId, targetId] of round.votes.entries()) {
@@ -44,7 +44,7 @@ function serializeRound(round, room, forPlayerId) {
 function buildRoomSnapshot(room, forPlayerId) {
   const currentRound = room.rounds[room.rounds.length - 1] || null;
   const isHost = forPlayerId === room.hostPlayerId;
-  const canSeePendingAi = isHost || forPlayerId === room.pendingAiPlayerId;
+  const canSeePendingAi = (isHost && !room.hideAiFromHost) || forPlayerId === room.pendingAiPlayerId;
 
   return {
     code: room.code,
@@ -52,10 +52,11 @@ function buildRoomSnapshot(room, forPlayerId) {
     players: Array.from(room.players.values()).map((p) =>
       serializePlayer(p, { includeToken: p.id === forPlayerId })),
     settings: room.settings,
-    questionBank: room.questionBank,
+    questionBank: isHost ? room.questionBank : undefined,
     phase: room.phase,
     phaseEndsAt: room.phaseEndsAt,
     pendingAiPlayerId: canSeePendingAi ? room.pendingAiPlayerId : null,
+    pendingAiAssigned: Boolean(room.pendingAiPlayerId),
     scoreboard: Object.fromEntries(room.scoreboard.entries()),
     round: serializeRound(currentRound, room, forPlayerId),
     you: { playerId: forPlayerId },

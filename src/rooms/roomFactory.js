@@ -39,12 +39,13 @@ function createRoom({ code, hostPlayer }) {
     phaseEndsAt: null,
     phaseTimerHandle: null,
     pendingAiPlayerId: null,
+    hideAiFromHost: false,
     rounds: [],
     scoreboard: new Map([[hostPlayer.id, 0]]),
   };
 }
 
-function createRound({ index, questionId, questionText, aiPlayerId, answererIds, eligibleVoterIds }) {
+function createRound({ index, questionId, questionText, aiPlayerId, answererIds, eligibleVoterIds, hideAiFromHost }) {
   return {
     index,
     questionId,
@@ -52,6 +53,7 @@ function createRound({ index, questionId, questionText, aiPlayerId, answererIds,
     aiPlayerId,
     answererIds,
     eligibleVoterIds,
+    hideAiFromHost,
     answers: [],
     discussionMessages: [],
     votes: new Map(),
