@@ -22,8 +22,8 @@ function registerVoteHandlers(io, socket) {
       if (cb) cb({ error: 'You cannot vote for yourself.' });
       return;
     }
-    if (!room.players.has(targetPlayerId)) {
-      if (cb) cb({ error: 'Invalid vote target.' });
+    if (!round.answererIds.includes(targetPlayerId)) {
+      if (cb) cb({ error: 'You can only vote for a player who answered this round.' });
       return;
     }
 

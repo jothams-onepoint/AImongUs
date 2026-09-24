@@ -42,6 +42,14 @@ export default function AnswerFeed() {
   return (
     <div className="answer-feed">
       <h3>Answers</h3>
+      {!isAnswerer && (
+        <div className="spectator-instructions">
+          <p>
+            You're not answering this round — watch the answers carefully, you'll need to help
+            identify the AI when voting.
+          </p>
+        </div>
+      )}
       {isAnswerer && isWriting && (
         <>
           {isAiPlayer && (

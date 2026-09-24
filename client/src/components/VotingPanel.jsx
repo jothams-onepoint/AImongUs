@@ -7,13 +7,14 @@ export default function VotingPanel() {
   if (!round) return null;
 
   const playersById = Object.fromEntries(room.players.map((p) => [p.id, p]));
+  const candidates = round.answererIds.map((id) => playersById[id]).filter(Boolean);
 
   return (
     <div className="voting-panel">
       <h3>Who's the AI?</h3>
       {!round.canVote && <p className="hint">You joined mid-round, so you're sitting this vote out.</p>}
       <ul className="vote-grid">
-        {room.players.map((p) => {
+        {candidates.map((p) => {
           const isSelf = p.id === myPlayerId;
           const voters = round.voteTally[p.id] || [];
           const isMyVote = round.myVoteTargetId === p.id;

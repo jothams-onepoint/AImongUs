@@ -57,6 +57,7 @@ function buildRoomSnapshot(room, forPlayerId) {
     phaseEndsAt: room.phaseEndsAt,
     pendingAiPlayerId: canSeePendingAi ? room.pendingAiPlayerId : null,
     pendingAiAssigned: Boolean(room.pendingAiPlayerId),
+    pendingAiIsRandom: room.hideAiFromHost,
     scoreboard: Object.fromEntries(room.scoreboard.entries()),
     round: serializeRound(currentRound, room, forPlayerId),
     you: { playerId: forPlayerId },

@@ -1,19 +1,47 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGame } from '../hooks/useCurrentPlayer.js';
 import QuestionBankEditor from './QuestionBankEditor.jsx';
 
 const MIN_PLAYERS_TO_START = 3;
+const RANDOM_OPTION_VALUE = '__random__';
 
 export default function HostControlPanel() {
   const { room, assignAI, randomizeAI, startRound, updateSettings } = useGame();
+  // Reflects the host's choice immediately, rather than waiting on the
+  // server round-trip - otherwise a re-render in between can snap the
+  // controlled <select> back to the placeholder before the real update lands.
+  const [localAiChoice, setLocalAiChoice] = useState(null);
 
   const connectedPlayers = room.players.filter((p) => p.connected);
-  const aiHiddenFromHost = room.pendingAiAssigned && !room.pendingAiPlayerId;
   const canStart = room.pendingAiAssigned && connectedPlayers.length >= MIN_PLAYERS_TO_START;
+
+  // A fresh round-setup cycle (nothing assigned yet) clears any local override
+  // so it doesn't leak into the next round.
+  useEffect(() => {
+    if (!room.pendingAiAssigned) setLocalAiChoice(null);
+  }, [room.pendingAiAssigned]);
+
+  // Never let the select's displayed value reveal identity for a random pick -
+  // even if the host themselves was the one chosen, the dropdown must still
+  // just show "Random" so nobody glancing at the host's screen can tell.
+  const serverAiSelectValue = room.pendingAiIsRandom
+    ? RANDOM_OPTION_VALUE
+    : (room.pendingAiPlayerId || '');
+  const aiSelectValue = localAiChoice ?? serverAiSelectValue;
 
   const handleAnswerersChange = (e) => {
     const value = e.target.value;
     updateSettings({ answerersPerRound: value === 'all' ? 'all' : Number(value) });
+  };
+
+  const handleAiChange = (e) => {
+    const value = e.target.value;
+    setLocalAiChoice(value);
+    if (value === RANDOM_OPTION_VALUE) {
+      randomizeAI();
+    } else if (value) {
+      assignAI(value);
+    }
   };
 
   return (
@@ -32,27 +60,17 @@ export default function HostControlPanel() {
 
       <label>
         Who's the AI this round?
-        <div className="ai-picker">
-          <select
-            value={room.pendingAiPlayerId || ''}
-            onChange={(e) => assignAI(e.target.value)}
-            disabled={aiHiddenFromHost}
-          >
-            <option value="" disabled>
-              {aiHiddenFromHost ? 'Secretly assigned \u{1F3B2}' : 'Choose a player…'}
-            </option>
-            {connectedPlayers.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-          <button type="button" className="secondary" onClick={() => randomizeAI()}>
-            Random (hidden from you)
-          </button>
-        </div>
-        {aiHiddenFromHost && (
+        <select value={aiSelectValue} onChange={handleAiChange}>
+          <option value="" disabled>Choose a player…</option>
+          <option value={RANDOM_OPTION_VALUE}>{'\u{1F3B2}'} Random (hidden from you)</option>
+          {connectedPlayers.map((p) => (
+            <option key={p.id} value={p.id}>{p.name}</option>
+          ))}
+        </select>
+        {aiSelectValue === RANDOM_OPTION_VALUE && (
           <p className="hint">
-            Someone's been randomly picked as the AI — it's a surprise to you too. Pick a name
-            above to override with a known choice, or randomize again.
+            Randomly assigned — it's a surprise to you too, even if it turns out to be you.
+            Pick a name above to override with a known choice.
           </p>
         )}
       </label>

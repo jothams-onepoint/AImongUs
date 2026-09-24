@@ -89,6 +89,17 @@ label {
 .ai-instructions p { margin: 0; }
 .ai-instructions button { background: white; color: var(--accent-dark); }
 
+.spectator-instructions {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+.spectator-instructions p { margin: 0; }
+
 .lobby-screen { max-width: 640px; }
 .invite-link code { background: var(--border); padding: 0.2rem 0.4rem; border-radius: 6px; }
 
@@ -107,10 +118,6 @@ label {
 .scoreboard { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin: 1rem 0; }
 .scoreboard ol { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.3rem; }
 .scoreboard li { display: flex; justify-content: space-between; }
-
-.ai-picker { display: flex; gap: 0.5rem; }
-.ai-picker select { flex: 1; }
-.ai-picker button { flex-shrink: 0; }
 
 .host-control-panel, .question-bank-editor {
   background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-top: 1rem;
